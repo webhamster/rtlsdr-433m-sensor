@@ -20,15 +20,8 @@ import osmosdr
 freq = 433.8e6
 freq_offs = 100e3
 
-# For some receivers or senders, the timing needs to be corrected
-# Try using 0.95 here
-time_factor = 1
-
-# Sensitivity
-
 # Threshold for OOK HIGH level
-# Try using -0.4
-level = -0.35 
+level = -0.35
 
 class rtlsdr_am_stream(gr.top_block):
 	""" A GNU Radio top block that demodulates AM from RTLSDR and acts as a 
@@ -99,8 +92,7 @@ def decode_osv1(stream, level=-0.35):
 
 	for direction, time, abstime in transition(stream, level):
 		# convert the time in samples to microseconds
-		time = time_factor * (time / float(stream.rate) * 1e6)
-
+		time = time / float(stream.rate) * 1e6
 		if state == 'wait' and direction is True:
 			# Start of the preamble
 			state = 'preamble'
@@ -115,7 +107,7 @@ def decode_osv1(stream, level=-0.35):
 				else:
 					state = 'wait'
 			else:
-				if (700 < time < 1400):
+				if (700 < time < 1500):
 					# Valid rising edge in preamble
 					pass
 				elif count>8 and (2700 < time < 5000):
